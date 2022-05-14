@@ -1,36 +1,57 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: banking
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
+  push:
+    branches: master
+    
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build_lib:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: build_lib 
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          cd banking
+          cmake -H. -B_build
+          cd _build
+          cmake --build .
+  Test_banking:
+    runs-on: ubuntu-latest
+    
+    steps: 
+      - uses: actions/checkout@v3
+      - name: preparing 
+        run: |
+              sudo apt install git && git submodule update --init
+              sudo apt install lcov
+              sudo apt install g++-7 
+      - name: Test
+        run: | 
+          mkdir _build && cd _build
+          CXX=/usr/bin/g++-7 cmake -DCOVERAGE=1 ..
+          cmake --build .
+          ./testing
+          lcov -t "banking" -o lcov.info -c -d .
+          
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel: true
+          path-to-lcov: ./_build/lcov.info
+          coveralls-endpoint: https://coveralls.io
+
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
+      
