@@ -41,13 +41,14 @@ jobs:
           cmake --build .
           ./testing
           lcov -t "banking" -o lcov.info -c -d .
+          ls
           
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
           parallel: true
-          path-to-lcov: ./_build/lcov.info
+          path-to-lcov: ./lab-05/_build/lcov.info
           coveralls-endpoint: https://coveralls.io
 
       - name: Coveralls Finished
