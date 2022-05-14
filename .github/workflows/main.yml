@@ -19,7 +19,7 @@ jobs:
 
       - name: build_lib 
         run: |
-          cd banking
+          cd lab-05/banking
           cmake -H. -B_build
           cd _build
           cmake --build .
@@ -35,6 +35,7 @@ jobs:
               sudo apt install g++-7 
       - name: Test
         run: | 
+          cd lab-05
           mkdir _build && cd _build
           CXX=/usr/bin/g++-7 cmake -DCOVERAGE=1 ..
           cmake --build .
@@ -46,7 +47,7 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           parallel: true
-          path-to-lcov: ./_build/lcov.info
+          path-to-lcov: ./lab-05/_build/lcov.info
           coveralls-endpoint: https://coveralls.io
 
       - name: Coveralls Finished
