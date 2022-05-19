@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(banking STATIC Account.cpp  Account.h Transaction.cpp Transaction.h)
 ```
 ![Снимок экрана от 2022-05-14 14-17-24](https://user-images.githubusercontent.com/91633974/169373680-f42e48dd-a886-4661-9af7-dadb91bc437b.png)
+
 Testing.cpp
 ```
 #include<iostream>
@@ -212,3 +213,61 @@ target_compile_options(
 ```
 ![Снимок экрана от 2022-05-14 15-08-41](https://user-images.githubusercontent.com/91633974/169374627-62c7984a-de05-49be-87a1-53addc47e406.png)
 
+```
+name: banking
+
+on:
+
+  push:
+    branches: master
+    
+  workflow_dispatch:
+
+
+jobs:
+  build_lib:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build_lib 
+        run: |
+          cd lab-05/banking
+          cmake -H. -B_build
+          cd _build
+          cmake --build .
+  Test_banking:
+    runs-on: ubuntu-latest
+    
+    steps: 
+      - uses: actions/checkout@v3
+      - name: preparing 
+        run: |
+              sudo apt install git && git submodule update --init
+              sudo apt install lcov
+              sudo apt install g++-7 
+      - name: Test
+        run: | 
+          cd lab-05
+          mkdir _build && cd _build
+          CXX=/usr/bin/g++-7 cmake -DCOVERAGE=1 ..
+          cmake --build .
+          ./testing
+          lcov -t "banking" -o lcov.info -c -d .
+          ls
+          
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel: true
+          path-to-lcov: ./lab-05/_build/lcov.info
+          coveralls-endpoint: https://coveralls.io
+
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
+```
