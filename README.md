@@ -1,4 +1,5 @@
 [![Coverage Status](https://coveralls.io/repos/github/Yaros09/lab-05/badge.svg)](https://coveralls.io/github/Yaros09/lab-05)
+
 Задание 1
 CMakeLists.txt для banking:
 ```
